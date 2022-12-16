@@ -1,15 +1,9 @@
 def valid_input(num):
     if num.isdigit() == True and int(num) in [i for i in range(1,6)]:
         option = int(num)
-        return True, option
+        return option
     else: 
-        return False, num
-
-def valid_reply(reply):
-    if str in ['yn']:
-        return True, reply
-    else:
-        return False, reply
+        print("Not a valid option")
 
 
 def option_one():
@@ -34,8 +28,8 @@ def option_three():
         Save Holiday List
         =================
         ''')
-    reply = input("Are you sure you want to save your changes? [y/n]: ")
-    return reply
+    action = input("Are you sure you want to save your changes? [y/n]: ")
+    return action
 
 def option_four():
     print('''
@@ -52,7 +46,4 @@ def option_five():
         ====
         ''')
     reply = input("Are you sure you want to exit? [y/n]: ")
-    if valid_reply(reply) == True:
-        return True, reply
-    else:
-        return False, reply
+    return reply

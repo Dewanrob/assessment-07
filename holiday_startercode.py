@@ -38,19 +38,21 @@ class HolidayList:
    
     def addHoliday(self, holiday_obj):
         # Make sure holidayObj is an Holiday Object by checking the type
-        if type(holiday_obj) != Holiday:
-            raise 'Not a Holiday.'
-        # Use innerHolidays.append(holidayObj) to add holiday
-        else:
-            new_holiday = holiday_obj.__str__()
-            value = {'Name' : new_holiday[0], 'Date' : new_holiday[1]}
-            if value in self.innerHolidays:
-                print('That holiday is already in the list.')
+        try:
+            if type(holiday_obj) != Holiday:
+                raise 'Not a Holiday.'
+            # Use innerHolidays.append(holidayObj) to add holiday
             else:
-                self.innerHolidays.append(value)
-        # print to the user that you added a holiday
-                day = new_holiday[0]
-                print(f"You have successfully added {day} to the holiday list.")
+                new_holiday = holiday_obj.__str__()
+                value = {'Name' : new_holiday[0], 'Date' : new_holiday[1]}
+                if value in self.innerHolidays:
+                    print('That holiday is already in the list.')
+                else:
+                    self.innerHolidays.append(value)
+            # print to the user that you added a holiday
+                    day = new_holiday[0]
+                    print(f"You have successfully added {day} to the holiday list.")
+        except: print("Not a valid holiday")
 
 
 
@@ -163,43 +165,39 @@ def main():
                 print(words)
     # 5. Take user input for their action based on Menu a
         action = input("Please select an option: ")
-        bool, option = valid_input(action)
+        option = valid_input(action)
     # nd check the user input for errors
         if option == 1:
             name, date = option_one()
             # new_holiday = Holiday(name, date)
-            new_holiday = Holiday(name, date)
+            try:
+                new_holiday = Holiday(name, date)
             # HolidayList.addHoliday(new_holiday)
-            holiday_list.addHoliday(new_holiday)
+                holiday_list.addHoliday(new_holiday)
+            except: print("Not a valid holiday")
         if option == 2:
             name = option_two()
             holiday_list.removeHoliday(name)
         if option == 3:
-            boolean, reply = option_three() 
-            if boolean == True:
-                if reply == 'y':
-                    holiday_list.save_to_json('holiday.json')
-                    print("Your changes have been saved")
-                else:
-                    print("Your changes have been canceled")
+            reply = option_three() 
+            if reply == 'y':
+                holiday_list.save_to_json('holiday.json')
+                print("Your changes have been saved")
+            elif reply == 'n':
+                print("Your changes have been canceled")
+            else:
+                print('Not a valid option.')
+                pass
         if option == 4:
             option_four()
         if option == 5:
-            boolean, reply = option_five()
-            if boolean == True:
-                if reply == 'y':
-                    break
-                else:
-                    pass
-        if bool == False:
-            print("Not a valid option.")
-    # elif valid_input(action)[0] == False:
-    #     print('''
-
-    #     Sorry, that is not a valid option.
-
-    #     ''')
-    #     main()
+            reply = option_five()
+            if reply == 'y':
+                break
+            elif reply == 'n':
+                pass
+            else:
+                print('Not a valid option.')
 # 6. Run appropriate method from the HolidayList object depending on what the user input is
 # 7. Ask the User if they would like to Continue, if not, end the while loop, ending the program.  If they do wish to continue, keep the program going. 
 
