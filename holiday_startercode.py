@@ -38,39 +38,37 @@ class HolidayList:
    
     def addHoliday(self, holiday_obj):
         # Make sure holidayObj is an Holiday Object by checking the type
-        try:
-            if type(holiday_obj) != Holiday:
-                raise 'Not a Holiday.'
-            # Use innerHolidays.append(holidayObj) to add holiday
+        if type(holiday_obj) != Holiday:
+            raise 'Not a valid holiday.'
+        # Use innerHolidays.append(holidayObj) to add holiday
+        else:
+            new_holiday = holiday_obj.__str__()
+            value = {'Name' : new_holiday[0], 'Date' : new_holiday[1]}
+            if value in self.innerHolidays:
+                print('That holiday is already in the list.')
             else:
-                new_holiday = holiday_obj.__str__()
-                value = {'Name' : new_holiday[0], 'Date' : new_holiday[1]}
-                if value in self.innerHolidays:
-                    print('That holiday is already in the list.')
-                else:
-                    self.innerHolidays.append(value)
-            # print to the user that you added a holiday
-                    day = new_holiday[0]
-                    print(f"You have successfully added {day} to the holiday list.")
-        except: print("Not a valid holiday")
+                self.innerHolidays.append(value)
+        # print to the user that you added a holiday
+                day = new_holiday[0]
+                print(f"You have successfully added {day} to the holiday list.")
 
 
 
-    def findHoliday(self, HolidayName):
+    def findHoliday(self, HolidayName, Date):
         # Find Holiday in innerHolidays
         for i in range(0, len(self.innerHolidays)): 
             for items in self.innerHolidays:
-                if self.innerHolidays[i]['Name'] == HolidayName:
+                if self.innerHolidays[i]['Name'] == HolidayName and self.innerHolidays[i]['Date'] == Date:
                     index = i
-                    return self.innerHolidays[i]['Name'], index
+                    return self.innerHolidays[i]['Name'], self.innerHolidays[i]['Date'], index
                 else:
                     pass
         # Return Holiday
 
-    def removeHoliday(self, HolidayName):
+    def removeHoliday(self, HolidayName, Date):
         # Find Holiday in innerHolidays by searching the name and date combination.
         try:
-            index = self.findHoliday(HolidayName)[1]
+            index = self.findHoliday(HolidayName, Date)[2]
         # remove the Holiday from innerHolidays
             self.innerHolidays.pop(index)
         # inform user you deleted the holiday
@@ -78,17 +76,15 @@ class HolidayList:
             print(f"You successfully deleted {day} from the holiday list.")
         except: print("Holiday not found")
         
-    def read_json(self):  
+    def read_json(self):
+        # Read in things from json file location
         with open("holiday-seed.json", 'r') as f:
             holidays = json.load(f)
-            # Use addHoliday function to add holidays to inner list.
-            for i in range(0, len(holidays['holidays'])):
-                seed_holidays = Holiday(holidays['holidays'][i]['name'], holidays['holidays'][i]['date'])
-                self.addHoliday(seed_holidays)
-  
+        # Use addHoliday function to add holidays to inner list.
+        for i in range(0, len(holidays['holidays'])):
+            seed_holidays = Holiday(holidays['holidays'][i]['name'], holidays['holidays'][i]['date'])
+            self.addHoliday(seed_holidays)
         
-
-
     def save_to_json(self, filelocation):
         # Write out json file to selected file.
         holidays = {"Holidays" : self.innerHolidays}
@@ -96,7 +92,6 @@ class HolidayList:
             with open(filelocation, 'w') as f:
                 json.dump(holidays, f, indent = 4)
         except: print("Not a vaild file location")
-        
         
     def scrapeHolidays():
         pass
@@ -111,16 +106,35 @@ class HolidayList:
         return len(self.innerholidays)
         # pass
     
-    def filter_holidays_by_week(year, week_number):
-        pass
-        # Use a Lambda function to filter by week number and save this as holidays, use the filter on innerHolidays
-        # Week number is part of the the Datetime object
-        # Cast filter results as list
-        # return your holidays
+    def filter_holidays_by_week(self, year, week_number):
+        try:
+            results = []
+            for i in range(0, len(self.innerHolidays)):
+                if week_year(self.innerHolidays[i]['Date'])[0] == week_number and week_year(self.innerHolidays[i]['Date'])[1] == year:
+                    results.append(self.innerHolidays[i])
+            # Use a Lambda function to filter by week number and save this as holidays, use the filter on innerHolidays
+            # Week number is part of the the Datetime object
+            sorted_results = sorted(results, key = lambda calendar_date: calendar_date['Date'])
+            self.innerHolidays = sorted(self.innerHolidays, key = lambda calendar_date: calendar_date['Date'])
+            # Cast filter results as list
+            holidays = []
+            for i in range (0, len(sorted_results)):
+                holidays.append((sorted_results[i]['Name'], sorted_results[i]['Date']))
+            # return your holidays
+            return holidays
+        except: "Invalid week, year combination."
 
-    def displayHolidaysInWeek(holidayList):
-        pass
+    def displayHolidaysInWeek(self, year, week_number):
         # Use your filter_holidays_by_week to get list of holidays within a week as a parameter
+        holidayList = self.filter_holidays_by_week(year, week_number)
+        try:
+            calendar_year = year
+            calendar_week = week_number
+            print(f"These are the holidays for {calendar_year} week#{calendar_week}:")
+            for i in range(0, len(holidayList)):
+                print(holidayList[i][0], holidayList[i][1])
+        except: print("Something went wrong")
+        # self.filter_holidays_by_week(year, week_number)
         # Output formated holidays in the week. 
         # * Remember to use the holiday __str__ method.
 
@@ -140,15 +154,11 @@ class HolidayList:
         # Ask user if they want to get the weather
         # If yes, use your getWeather function and display results
 
-    def Display(self):
-        print(self.innerHolidays)
-
 
 
 
 
 def main():
-    pass
     # Large Pseudo Code steps
     # -------------------------------------
     # 1. Initialize HolidayList Object
@@ -158,21 +168,21 @@ def main():
     # 3. Scrape additional holidays using your HolidayList scrapeHolidays function.
     # 3. Create while loop for user to keep adding or working with the Calender
     while True:
-    # 4. Display User Menu (Print the menu)
+        # 4. Display User Menu (Print the menu)
         with open("main-menu.txt", 'r') as f:
             main_menu = f.readlines()
             for words in main_menu:
                 print(words)
-    # 5. Take user input for their action based on Menu a
+        # 5. Take user input for their action based on Menu a
+        # check the user input for errors
         action = input("Please select an option: ")
         option = valid_input(action)
-    # nd check the user input for errors
         if option == 1:
             name, date = option_one()
-            # new_holiday = Holiday(name, date)
             try:
+                # new_holiday = Holiday(name, date)
                 new_holiday = Holiday(name, date)
-            # HolidayList.addHoliday(new_holiday)
+                # HolidayList.addHoliday(new_holiday)
                 holiday_list.addHoliday(new_holiday)
             except: print("Not a valid holiday")
         if option == 2:
@@ -189,12 +199,35 @@ def main():
                 print('Not a valid option.')
                 pass
         if option == 4:
-            option_four()
+            year, week = option_four()
+            # print(year, week)
+            # print(holiday_list.filter_holidays_by_week(2021, 2))
+            # print(holiday_list.displayHolidaysInWeek(2021, 2))
+            # print(holiday_list.filter_holidays_by_week(year, week))
+            holiday_list.displayHolidaysInWeek(year, week)
+       
+            # results = []
+            # for i in range(0, len(holiday_list.innerHolidays)):
+            #     if week_year(holiday_list.innerHolidays[i]['Date'])[0] == week and week_year(holiday_list.innerHolidays[i]['Date'])[1] == year:
+            #         results.append(holiday_list.innerHolidays[i])
+            # # Use a Lambda function to filter by week number and save this as holidays, use the filter on innerHolidays
+            # # Week number is part of the the Datetime object
+            # sorted_results = sorted(results, key = lambda calendar_date: calendar_date['Date'])
+            # holiday_list.innerHolidays = sorted(holiday_list.innerHolidays, key = lambda calendar_date: calendar_date['Date'])
+            # # Cast filter results as list
+            # holidays = []
+            # for i in range (0, len(sorted_results)):
+            #     holidays.append((sorted_results[i]['Name'], sorted_results[i]['Date']))
+            # # return your holidays
+            # print(holidays, results)
+            
+            
         if option == 5:
             reply = option_five()
             if reply == 'y':
                 break
             elif reply == 'n':
+                print("Fare thee well!")
                 pass
             else:
                 print('Not a valid option.')
@@ -221,7 +254,6 @@ if __name__ == "__main__":
 # and substitute the placeholders 
 # for example: filetxt.format(fname = "John", age = 36)
 # This will make your code far more readable, by seperating text from code.
-
 
 
 

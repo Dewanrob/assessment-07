@@ -1,9 +1,31 @@
+import datetime 
+
 def valid_input(num):
-    if num.isdigit() == True and int(num) in [i for i in range(1,6)]:
+    if num.isdigit() == True and int(num) in range(1,6):
         option = int(num)
         return option
     else: 
-        print("Not a valid option")
+        print('''
+        Not a valid option''')
+
+def valid_week (week):
+    if week.isdigit() == True and int(week) in range(1, 53):
+        return int(week)
+    if week == '':
+        return ''
+    else:
+        print('Not a valid option')
+
+def valid_year (year):
+    if year.isdigit() == True and int(year) > 0:
+        return int(year)
+    else:
+        print('Not a valid option.')
+
+def week_year(holiday):
+    week = datetime.date.fromisoformat(holiday).isocalendar()[1]
+    year = datetime.date.fromisoformat(holiday).isocalendar()[0]
+    return week, year
 
 
 def option_one():
@@ -38,7 +60,7 @@ def option_four():
         ''')
     year = input('Which year?: ')
     week = input('Which week? #[1-52, Leave blank for the current week]: ')
-    return year, week
+    return valid_year(year), valid_week(week)
 
 def option_five():
     print('''
