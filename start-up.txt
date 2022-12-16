@@ -1,0 +1,5 @@
+Holiday Management
+==================
+Welcome to Holiday Management!
+
+There are {count} holidays stored in the system.
