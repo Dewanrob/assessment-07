@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 from dataclasses import dataclass
 from functions import *
+import re
 
 
 
@@ -93,19 +94,40 @@ class HolidayList:
                 json.dump(holidays, f, indent = 4)
         except: print("Not a vaild file location")
         
-    def scrapeHolidays():
-        pass
-        # Scrape Holidays from https://www.timeanddate.com/holidays/us/ 
-        # Remember, 2 previous years, current year, and 2  years into the future. You can scrape multiple years by adding year to the timeanddate URL. For example https://www.timeanddate.com/holidays/us/2022
-        # Check to see if name and date of holiday is in innerHolidays array
-        # Add non-duplicates to innerHolidays
-        # Handle any exceptions.     
+    def scrapeHolidays(self):
+        results = []
+        for year in range (2020,2025):
+            url = 'https://www.timeanddate.com/holidays/us/' + str(year)
+            r = requests.get(url)
+            soup = BeautifulSoup(r.text, 'html.parser')
+            holiday_html = soup.find_all(['td', 'th'])
+            # Here's a giant dictionary of the holidays
+            for i in range(0, len(holiday_html)):
+                try:
+                    results.append(
+                        { 
+                        'Date'      : str(year) + '-' + datetime.datetime.strptime(holiday_html[i-2].get_text()[0:3], '%b').strftime('%m') 
+                                        + '-' + datetime.datetime.strptime(holiday_html[i-2].get_text()[3:5], '%d').strftime('%d'), 
+                        'Name'      : holiday_html[i].find('a', href = re.compile('holidays/us')).get_text(),
+                        'Type'      : holiday_html[i+1].get_text(),
+                        'Details'   : holiday_html[i+2].get_text().replace('\xa0', '')
+                        }   
+                    )
+                except:
+                    pass
+        for i in range (0, len(results)):
+            holiday = Holiday(results[i]['Name'], results[i]['Date'])
+            self.addHoliday(holiday)
 
     def numHolidays(self):
         # Return the total number of holidays in innerHolidays
-        return len(self.innerholidays)
+        return int(len(self.innerHolidays))
         # pass
     
+    def __lt__(self, other):
+        return True
+
+
     def filter_holidays_by_week(self, year, week_number):
         try:
             results = []
@@ -170,7 +192,15 @@ def main():
     # 2. Load JSON file via HolidayList read_json function
     holiday_list.read_json()
     # 3. Scrape additional holidays using your HolidayList scrapeHolidays function.
+    holiday_list.scrapeHolidays()
+    initial_length = holiday_list.numHolidays()
     # 3. Create while loop for user to keep adding or working with the Calender
+    with open("start-up.txt", 'r') as f:
+        start_up = f.readlines()
+        for words in start_up:
+            print(words.format(count = initial_length))
+    input('Press any key to continue: ')
+
     while True:
         # 4. Display User Menu (Print the menu)
         with open("main-menu.txt", 'r') as f:
@@ -211,6 +241,18 @@ def main():
         if option == 5:
             reply = option_five()
             if reply == 'y':
+                final_length = holiday_list.numHolidays()
+                if  final_length > initial_length:
+                    print("You have made changes, if you were to leave now, they would be unsaved")
+                    second_chance = input('Are you sure you want to exit? [y/n]')
+                    if second_chance == 'y':
+                            break
+                    elif second_chance == 'n':
+                            continue
+                    else:
+                            print('That is not a valid input')
+                else:
+                    break
                 break
             elif reply == 'n':
                 print("Fare thee well!")
