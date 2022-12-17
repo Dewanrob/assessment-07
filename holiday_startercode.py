@@ -145,12 +145,16 @@ class HolidayList:
         # Query API for weather in that week range
         # Format weather information and return weather string.
 
-    def viewCurrentWeek():
+    def viewCurrentWeek(self):
         pass
         # Use the Datetime Module to look up current week and year
+        current_week = datetime.date.today().isocalendar()[1]
+        current_year = datetime.date.today().isocalendar()[0]
         # Use your filter_holidays_by_week function to get the list of holidays 
         # for the current week/year
         # Use your displayHolidaysInWeek function to display the holidays in the week
+        week = current_week
+        self.displayHolidaysInWeek(current_year, current_week)
         # Ask user if they want to get the weather
         # If yes, use your getWeather function and display results
 
@@ -200,28 +204,10 @@ def main():
                 pass
         if option == 4:
             year, week = option_four()
-            # print(year, week)
-            # print(holiday_list.filter_holidays_by_week(2021, 2))
-            # print(holiday_list.displayHolidaysInWeek(2021, 2))
-            # print(holiday_list.filter_holidays_by_week(year, week))
-            holiday_list.displayHolidaysInWeek(year, week)
-       
-            # results = []
-            # for i in range(0, len(holiday_list.innerHolidays)):
-            #     if week_year(holiday_list.innerHolidays[i]['Date'])[0] == week and week_year(holiday_list.innerHolidays[i]['Date'])[1] == year:
-            #         results.append(holiday_list.innerHolidays[i])
-            # # Use a Lambda function to filter by week number and save this as holidays, use the filter on innerHolidays
-            # # Week number is part of the the Datetime object
-            # sorted_results = sorted(results, key = lambda calendar_date: calendar_date['Date'])
-            # holiday_list.innerHolidays = sorted(holiday_list.innerHolidays, key = lambda calendar_date: calendar_date['Date'])
-            # # Cast filter results as list
-            # holidays = []
-            # for i in range (0, len(sorted_results)):
-            #     holidays.append((sorted_results[i]['Name'], sorted_results[i]['Date']))
-            # # return your holidays
-            # print(holidays, results)
-            
-            
+            if week == '':
+                holiday_list.viewCurrentWeek()
+            else:
+                holiday_list.displayHolidaysInWeek(year, week)    
         if option == 5:
             reply = option_five()
             if reply == 'y':
