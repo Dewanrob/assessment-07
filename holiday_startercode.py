@@ -3,35 +3,26 @@ import json
 from bs4 import BeautifulSoup
 import requests
 from dataclasses import dataclass
-from functions import *
+from functionality.functions import *
 import re
 
 
 
-# -------------------------------------------
-# Modify the holiday class to ho
-# 1. Only accept Datetime objects for date.
-# 2. You may need to add additional functions
-# 3. You may drop the init if you are using @dataclasses
-# --------------------------------------------
+
 class Holiday:
       
     def __init__(self, name, date):
         self.name = name 
         self.date = datetime.date.fromisoformat(date)      
-        # pass
+        
     def __str__ (self):
         # String output
         string_date = str(self.date)
         return self.name, string_date
         # Holiday output when printed.
-        # pass  
+        
            
-# -------------------------------------------
-# The HolidayList class acts as a wrapper and container
-# For the list of holidays
-# Each method has pseudo-code instructions
-# --------------------------------------------
+
 class HolidayList:
     def __init__(self):
        self.innerHolidays = []
@@ -41,15 +32,15 @@ class HolidayList:
         # Make sure holidayObj is an Holiday Object by checking the type
         if type(holiday_obj) != Holiday:
             raise 'Not a valid holiday.'
-        # Use innerHolidays.append(holidayObj) to add holiday
         else:
             new_holiday = holiday_obj.__str__()
+            # Using the Holiday string method to create a list of dictionaries of holiday content
             value = {'Name' : new_holiday[0], 'Date' : new_holiday[1]}
             if value in self.innerHolidays:
                 print('That holiday is already in the list.')
             else:
                 self.innerHolidays.append(value)
-        # print to the user that you added a holiday
+                # print to the user that you added a holiday
                 day = new_holiday[0]
                 print(f"You have successfully added {day} to the holiday list.")
 
@@ -61,19 +52,19 @@ class HolidayList:
             for items in self.innerHolidays:
                 if self.innerHolidays[i]['Name'] == HolidayName and self.innerHolidays[i]['Date'] == Date:
                     index = i
+                    # Return Holiday
                     return self.innerHolidays[i]['Name'], self.innerHolidays[i]['Date'], index
                 else:
                     pass
-        # Return Holiday
 
     def removeHoliday(self, HolidayName, Date):
         # Find Holiday in innerHolidays by searching the name and date combination.
         try:
             index = self.findHoliday(HolidayName, Date)[2]
-        # remove the Holiday from innerHolidays
+            # remove the Holiday from innerHolidays
             self.innerHolidays.pop(index)
-        # inform user you deleted the holiday
             day = HolidayName
+            # inform user you deleted the holiday
             print(f"You successfully deleted {day} from the holiday list.")
         except: print("Holiday not found")
         
@@ -101,14 +92,14 @@ class HolidayList:
             r = requests.get(url)
             soup = BeautifulSoup(r.text, 'html.parser')
             holiday_html = soup.find_all(['td', 'th'])
-            # Here's a giant dictionary of the holidays
+            # This returns a dictionary of holidays
             for i in range(0, len(holiday_html)):
                 try:
                     results.append(
                         { 
                         'Date'      : str(year) + '-' + datetime.datetime.strptime(holiday_html[i-2].get_text()[0:3], '%b').strftime('%m') 
                                         + '-' + datetime.datetime.strptime(holiday_html[i-2].get_text()[3:5], '%d').strftime('%d'), 
-                        'Name'      : holiday_html[i].find('a', href = re.compile('holidays/us')).get_text(),
+                        'Name'      : holiday_html[i].find('a', href = re.compile('holidays')).get_text(),
                         'Type'      : holiday_html[i+1].get_text(),
                         'Details'   : holiday_html[i+2].get_text().replace('\xa0', '')
                         }   
@@ -122,11 +113,7 @@ class HolidayList:
     def numHolidays(self):
         # Return the total number of holidays in innerHolidays
         return int(len(self.innerHolidays))
-        # pass
-    
-    def __lt__(self, other):
-        return True
-
+        
 
     def filter_holidays_by_week(self, year, week_number):
         try:
@@ -144,7 +131,7 @@ class HolidayList:
                 holidays.append((sorted_results[i]['Name'], sorted_results[i]['Date']))
             # return your holidays
             return holidays
-        except: "Invalid week, year combination."
+        except: "\n Invalid week, year combination."
 
     def displayHolidaysInWeek(self, year, week_number):
         # Use your filter_holidays_by_week to get list of holidays within a week as a parameter
@@ -152,7 +139,7 @@ class HolidayList:
         try:
             calendar_year = year
             calendar_week = week_number
-            print(f"These are the holidays for {calendar_year} week#{calendar_week}:")
+            print(f"These are the holidays for {calendar_year} week #{calendar_week}:")
             for i in range(0, len(holidayList)):
                 print(holidayList[i][0], holidayList[i][1])
         except: print("Something went wrong")
@@ -195,21 +182,21 @@ def main():
     holiday_list.scrapeHolidays()
     initial_length = holiday_list.numHolidays()
     # 3. Create while loop for user to keep adding or working with the Calender
-    with open("start-up.txt", 'r') as f:
+    with open("text/start-up.txt", 'r') as f:
         start_up = f.readlines()
         for words in start_up:
             print(words.format(count = initial_length))
-    input('Press any key to continue: ')
+    input('Press enter to continue: ')
 
     while True:
         # 4. Display User Menu (Print the menu)
-        with open("main-menu.txt", 'r') as f:
+        with open("text/main-menu.txt", 'r') as f:
             main_menu = f.readlines()
             for words in main_menu:
                 print(words)
         # 5. Take user input for their action based on Menu a
         # check the user input for errors
-        action = input("Please select an option: ")
+        action = input("\n Please select an option: ")
         option = valid_input(action)
         if option == 1:
             name, date = option_one()
@@ -218,7 +205,7 @@ def main():
                 new_holiday = Holiday(name, date)
                 # HolidayList.addHoliday(new_holiday)
                 holiday_list.addHoliday(new_holiday)
-            except: print("Not a valid holiday")
+            except: print("\n Not a valid holiday")
         if option == 2:
             name = option_two()
             holiday_list.removeHoliday(name)
@@ -226,11 +213,12 @@ def main():
             reply = option_three() 
             if reply == 'y':
                 holiday_list.save_to_json('holiday.json')
-                print("Your changes have been saved")
+                initial_length = holiday_list.numHolidays()
+                print("\n Your changes have been saved")
             elif reply == 'n':
-                print("Your changes have been canceled")
+                print("\n Your changes have been canceled")
             else:
-                print('Not a valid option.')
+                print('\n Not a valid option.')
                 pass
         if option == 4:
             year, week = option_four()
@@ -243,9 +231,10 @@ def main():
             if reply == 'y':
                 final_length = holiday_list.numHolidays()
                 if  final_length > initial_length:
-                    print("You have made changes, if you were to leave now, they would be unsaved")
-                    second_chance = input('Are you sure you want to exit? [y/n]')
+                    print("\n You have made changes, if you were to leave now, they would be unsaved")
+                    second_chance = input('\n Are you sure you want to exit? [y/n]')
                     if second_chance == 'y':
+                            print("Fare thee well!")
                             break
                     elif second_chance == 'n':
                             continue
@@ -255,7 +244,6 @@ def main():
                     break
                 break
             elif reply == 'n':
-                print("Fare thee well!")
                 pass
             else:
                 print('Not a valid option.')
